@@ -382,27 +382,143 @@
         // ==========================================
         const TEXTS = {
             // RCD
-            'rcd_legal': { title: "Marco Legal RCD", text: "<strong>Resolución 1257 de 2021:</strong> Regula al Gestor de RCD y Plantas de Aprovechamiento.<br><strong>NTC 6421:</strong> Calidad de agregados reciclados.<br><strong>NTC 2017:</strong> Resistencia de adoquines.<br><strong>NTC 4026/4076:</strong> Normas para bloques estructurales y divisorios." },
+            'rcd_legal': { 
+                title: "Marco Legal RCD (Escombros)", 
+                text: `
+                <div class="space-y-4">
+                    <p>Esta línea actúa como <strong>Gestor de RCD</strong> bajo vigilancia ambiental. ECORECYCLE está facultado para expedir el <strong>Certificado de Aprovechamiento</strong> clave para constructoras.</p>
+                    
+                    <div class="bg-slate-800 p-3 rounded border-l-4 border-blue-500">
+                        <strong>Regulación Madre:</strong> Resolución 1257 de 2021 (Modifica Res. 0472 de 2017).
+                        <br><span class="text-xs text-slate-400">Modalidad: Planta de Aprovechamiento (Zonas de pesaje y separación inscritas).</span>
+                    </div>
+
+                    <h4 class="font-bold text-white mt-4 border-b border-slate-700">Normas Técnicas (NTC - ICONTEC)</h4>
+                    <ul class="list-disc pl-4 space-y-2 text-sm">
+                        <li><strong>Agregados (NTC 6421/6422):</strong> Agregados gruesos reciclados para concreto hidráulico y clasificación.</li>
+                        <li><strong>Adoquines (NTC 2017):</strong> Exige resistencia a flexotracción (~4.2 MPa) y baja absorción.</li>
+                        <li><strong>Bloques Estructurales (NTC 4026):</strong> Para muros de carga.</li>
+                        <li><strong>Bloques No Estructurales (NTC 4076):</strong> Para divisiones (uso seguro inicial).</li>
+                        <li><strong>Vías Terciarias (INVIAS Art. 320):</strong> Sub-bases granulares B-200.</li>
+                    </ul>
+
+                    <div class="bg-slate-800 p-3 rounded border-l-4 border-green-500 mt-2">
+                        <strong>Social & Vivienda:</strong> 
+                        <br>• Ley 2138 de 2021: Sustitución de vehículos de tracción animal (Carretilleros).
+                        <br>• Dec. 1341 de 2020: Vivienda Rural Sostenible (VIS Rural).
+                    </div>
+                </div>
+                `
+            },
             'p_ladrillo': { title: "Ladrillos Ecológicos", text: "Fabricados con áridos reciclados. Tipos: Lego (autoconstrucción), Estructural y Macizo. Ahorran costos y CO2." },
             'p_adoquin': { title: "Adoquines", text: "Para espacio público. Cumplen NTC 2017 (>4.2 MPa). Incluye 'Gramoquines' permeables." },
             'c_maq': { title: "Maquinaria", text: "Uso de Bobcats, Retroexcavadoras y Trituradoras industriales. Kit de automatización con IA opcional." },
             'c_soc': { title: "Sustitución VTA", text: "Formalización de 300 carretilleros. Cambio de tracción animal a unidades productivas motorizadas (Ley 2138)." },
             
             // ORGÁNICOS
-            'org_legal': { title: "Normativa Bio", text: "<strong>Res ICA 0684:</strong> Registro de Productor de Abonos Orgánicos.<br><strong>NTC 5167:</strong> Límites de patógenos y metales.<br><strong>Res ICA 3651/2640:</strong> Bioseguridad en granjas avícolas y porcícolas (Prohibición de lavazas)." },
+            'org_legal': { 
+                title: "Marco Legal Orgánicos & Agro", 
+                text: `
+                <div class="space-y-4">
+                    <p>Regulación dividida en producción de abonos (Bio-Insumos) y sanidad animal (Eco-Aldeas).</p>
+
+                    <div class="bg-slate-800 p-3 rounded border-l-4 border-yellow-500">
+                        <strong>Bio-Insumos (Abonos):</strong>
+                        <ul class="list-disc pl-4 mt-1 text-sm">
+                            <li><strong>Res. ICA 0684 de 2011:</strong> Registro de Productor de Abonos Orgánicos.</li>
+                            <li><strong>NTC 5167:</strong> Límites estrictos de metales pesados y patógenos (Salmonella/E. coli).</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-800 p-3 rounded border-l-4 border-green-500 mt-2">
+                        <strong>Bioseguridad Animal (Eco-Aldeas):</strong>
+                        <ul class="list-disc pl-4 mt-1 text-sm">
+                            <li><strong>Avicultura:</strong> Res. ICA 3651 de 2014 (Granjas Bioseguras).</li>
+                            <li><strong>Porcicultura:</strong> Res. ICA 2640 de 2007 (Prohibición absoluta de lavazas crudas, uso de alimento procesado).</li>
+                            <li><strong>Piscicultura:</strong> Res. AUNAP 2287 y Res. ICA 064 (Registro predios).</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-sm mt-2">
+                        <strong>Gestión Alimentos:</strong> Ley 1990 de 2019 (Política contra desperdicio). Permite donaciones con beneficios tributarios para las Eco-Tiendas.
+                    </div>
+                </div>
+                `
+            },
+            'cia_leg': { 
+                title: "Marco Legal Eco-CIA & Rural", 
+                text: `
+                <div class="space-y-4">
+                    <p>Centros de Inteligencia Agroecológica y Logística Rural.</p>
+                    <div class="bg-slate-800 p-3 rounded border-l-4 border-indigo-500">
+                         <strong>Política Alimentaria:</strong> Ley 1990 de 2019.
+                         <br>Facilita la recuperación de alimentos aptos para consumo humano (Bancos de Alimentos/Eco-Tiendas).
+                    </div>
+                    <ul class="list-disc pl-4 mt-2 text-sm">
+                        <li><strong>Res. ICA 0684:</strong> Para comercialización de abonos producidos en el nodo rural.</li>
+                        <li><strong>Saneamiento Básico:</strong> Normativa de vertimientos para centros de acopio.</li>
+                    </ul>
+                </div>
+                `
+            },
             'p_abono': { title: "Abono Formulado", text: "Fertilizante orgánico libre de patógenos. Producción proyectada: 1.2M unidades/año." },
             'c_sitav': { title: "Tecnología SITAV", text: "Sistema de bioreactores acelerados. Controla pH y temperatura para compostaje rápido." },
             'c_aldea': { title: "Eco-Aldeas", text: "Unidades productivas de 50-100 gallinas, cerdos y huertas. Economía circular: residuos alimentan animales, estiércol genera biogás." },
 
             // RECICLABLES
-            'rec_legal': { title: "Normativa Reciclaje", text: "<strong>Decreto 596 de 2016:</strong> Operatividad de ECAs y tarifa de aseo.<br><strong>Res 1407:</strong> Responsabilidad Extendida del Productor (REP) Envases.<br><strong>Dec 1076:</strong> Licencia ambiental para pirólisis." },
+            'rec_legal': { 
+                title: "Marco Legal Reciclaje & ECA", 
+                text: `
+                <div class="space-y-4">
+                    <p>ECORECYCLE opera como prestador del servicio público de aseo (componente aprovechamiento).</p>
+                    
+                    <div class="bg-slate-800 p-3 rounded border-l-4 border-teal-500">
+                        <strong>Operación ECA:</strong> Decreto 596 de 2016.
+                        <br>Permite el cobro de "Tarifa de Aprovechamiento" y exige reporte al SUI (Sistema Único de Información). Formalización de recicladores.
+                    </div>
+
+                    <div class="mt-3">
+                        <strong>Responsabilidad Extendida (REP):</strong> Resolución 1407 de 2018.
+                        <br>Emisión de "Certificados de Transformación" para empresas que deben cumplir metas de recolección de envases.
+                    </div>
+
+                    <h4 class="font-bold text-white mt-3 border-b border-slate-700">Productos & Residuos Especiales</h4>
+                    <ul class="list-disc pl-4 space-y-1 text-sm">
+                        <li><strong>Madera Plástica:</strong> NTC 6296 (Compresión postes) y NTC 6355 (Flexión).</li>
+                        <li><strong>Llantas Usadas:</strong> Res. 1326 de 2017 (Almacenamiento seguro).</li>
+                        <li><strong>Aceite (ACU):</strong> Res. 0316 de 2018 (Gestor de aceites, prohibición de vertimiento).</li>
+                        <li><strong>Pirólisis:</strong> Licencia Ambiental (Dec. 1076) y Emisiones (Res. 909).</li>
+                    </ul>
+                </div>
+                `
+            },
             'p_comb': { title: "Combustibles", text: "Obtenidos por pirólisis de plásticos y llantas. Aceites usados convertidos en Biodiésel o Jabones." },
             'c_tie': { title: "Eco-Tiendas", text: "Puntos barriales de canje. La comunidad intercambia residuos separados por alimentos o productos de las Eco-Aldeas." },
 
             // TECNOLOGÍA
-            'tec_legal': { title: "Normativa Tech", text: "<strong>Dec 4725:</strong> Dispositivos médicos sobre medida (Prótesis).<br><strong>Ley 1581:</strong> Habeas Data y ética de IA.<br><strong>RAC 100:</strong> Regulación de drones agrícolas." },
+            'tec_legal': { 
+                title: "Marco Legal Tecnología (Eco-Cidas)", 
+                text: `
+                <div class="space-y-4">
+                    <p>Cumplimiento normativo para dispositivos médicos, aeronáutica y datos.</p>
+                    
+                    <div class="bg-slate-800 p-3 rounded border-l-4 border-purple-500">
+                        <strong>Prótesis Biónicas (Salud):</strong> Decreto 4725 de 2005.
+                        <br>Clasificadas como "Dispositivos médicos sobre medida". Requiere Certificado de Capacidad de Producción y Director Técnico (No registro masivo).
+                    </div>
+
+                    <ul class="list-disc pl-4 mt-2 text-sm">
+                        <li><strong>Drones Agro:</strong> RAC 100 (Aerocivil). Registro de equipo, piloto certificado y permiso para fumigación (Clase B).</li>
+                        <li><strong>IA & Datos:</strong> Ley 1581 de 2012 (Habeas Data) para bases de datos de recicladores/beneficiarios. Marco Ético de IA 2021 (Transparencia en algoritmos).</li>
+                    </ul>
+                </div>
+                `
+            },
             'p_prot': { title: "Prótesis Biónicas", text: "Fabricadas con plástico reciclado (PET/PP) y diseño generativo por IA. Bajo costo y alta personalización." },
-            'c_vis': { title: "Visión Artificial", text: "Cámaras que identifican materiales en bandas transportadoras para clasificación automática." }
+            'c_vis': { title: "Visión Artificial", text: "Cámaras que identifican materiales en bandas transportadoras para clasificación automática." },
+            
+            // LODOS (No provided text, keeping placeholder or simple ref)
+            'lod_leg': { title: "Marco Legal Lodos", text: "<strong>Decreto 1287 de 2014:</strong> Uso de biosólidos generados en plantas de tratamiento de aguas residuales." }
         };
 
         // ==========================================
@@ -604,7 +720,7 @@
                 </div>
                 
                 <div class="text-slate-300 font-light text-lg leading-relaxed space-y-4">
-                    <p>${info.text}</p>
+                    ${info.text}
                 </div>
 
                 ${id.includes('_legal') ? `
