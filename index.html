@@ -2,627 +2,631 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECORECYCLE: Red Neuronal de Economía Circular</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ECORECYCLE: Explorador Interactivo</title>
     <link rel="icon" href="https://raw.githubusercontent.com/instructorandradedcc/propuesta-AR/main/logofundacion.jpg" type="image/jpeg">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1F2937; overflow-x: hidden; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #020617; 
+            color: #e2e8f0; 
+            overflow: hidden; 
+            margin: 0; padding: 0;
+            height: 100vh; width: 100vw;
+        }
+        .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+
+        /* --- FONDO ANIMADO --- */
+        .bg-neural {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #020617 100%);
+            z-index: -2;
+            transition: background 1s ease;
+        }
+        .bg-grid {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+        }
+
+        /* --- LAYOUT --- */
+        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; position: relative; }
         
-        /* --- LAYOUT PRINCIPAL --- */
-        .main-wrapper {
-            display: flex;
-            height: calc(100vh - 70px); /* Restar header */
-            position: relative;
-            overflow: hidden;
+        .app-header { 
+            flex: 0 0 70px; z-index: 50; 
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
         }
 
-        /* Área del Grafo (Izquierda/Centro) */
-        .graph-area {
-            flex-grow: 1;
-            position: relative;
-            background: radial-gradient(circle at center, #ffffff 0%, #f3f4f6 100%);
-            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
-            overflow: hidden;
+        .title-section { 
+            flex: 0 0 auto; text-align: center; padding-top: 1.5rem; padding-bottom: 0.5rem; z-index: 10; 
+            transition: all 0.5s ease;
+        }
+        
+        .cinematic-h2 {
+            font-family: 'Rajdhani', sans-serif; font-size: 2.5rem; font-weight: 700;
+            letter-spacing: 4px; color: white; text-shadow: 0 0 20px rgba(74, 222, 128, 0.3); line-height: 1;
+        }
+        .cinematic-p { font-size: 0.85rem; letter-spacing: 3px; color: #94a3b8; text-transform: uppercase; margin-top: 0.5rem; }
+
+        /* --- ESCENARIO 3D --- */
+        .graph-stage { 
+            flex: 1; position: relative; display: flex; align-items: center; justify-content: center; 
+            perspective: 1000px; overflow: hidden; 
+        }
+        
+        .eco-hub-container { 
+            position: relative; width: 100%; height: 100%; 
+            display: flex; align-items: center; justify-content: center; 
+            transform-style: preserve-3d; 
         }
 
-        /* Panel Lateral de Información (Derecha) */
-        .info-panel {
-            width: 400px;
-            background: white;
-            border-left: 1px solid #e5e7eb;
-            box-shadow: -5px 0 25px rgba(0,0,0,0.05);
-            transform: translateX(100%); /* Oculto por defecto */
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            z-index: 50;
-            overflow-y: auto;
-            padding: 2rem;
-        }
-        .info-panel.active { transform: translateX(0); }
-
-        /* --- SISTEMA NODAL --- */
-        .eco-hub-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            transition: all 0.8s ease;
-        }
-
-        /* Líneas de Conexión (Red Neuronal) */
+        /* --- LÍNEAS --- */
         .neural-line {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            height: 2px;
-            background: linear-gradient(90deg, #cbd5e1 0%, #94a3b8 100%);
-            transform-origin: 0% 50%;
-            z-index: 1;
-            width: 0; /* Se anima con JS */
-            transition: width 1s ease-out, transform 0.8s ease;
+            position: absolute; top: 50%; left: 50%; height: 2px;
+            transform-origin: 0% 50%; z-index: 1; width: 0;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none; box-shadow: 0 0 8px currentColor;
             opacity: 0.6;
         }
 
-        /* Nodos */
+        /* --- NODOS --- */
         .eco-node {
-            position: absolute;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efecto rebote suave */
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            background-color: white;
-            z-index: 10;
-            transform: translate(-50%, -50%) scale(0); /* Inicia invisible */
+            position: absolute; border-radius: 50%; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; cursor: pointer;
+            backdrop-filter: blur(12px); 
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 10; 
+            transform: translate(-50%, -50%) scale(0); /* Estado inicial invisible */
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: rgba(15, 23, 42, 0.9);
+            border-style: solid;
+        }
+
+        .eco-node:hover { 
+            z-index: 50; 
+            transform: translate(-50%, -50%) scale(1.15) !important; 
+            box-shadow: 0 0 40px currentColor; 
+        }
+
+        /* Tamaños de Nodos */
+        .node-center { width: 160px; height: 160px; border-width: 4px; z-index: 20; font-size: 1rem; }
+        .node-branch { width: 120px; height: 120px; border-width: 2px; z-index: 15; font-size: 0.85rem; } /* Ramas Principales */
+        .node-leaf { width: 90px; height: 90px; border-width: 1px; z-index: 10; font-size: 0.7rem; } /* Productos/Detalles */
+
+        /* Animación de "Salida" (Zoom In effect) */
+        .zooming-out {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(5) !important;
+            filter: blur(10px);
         }
         
-        .eco-node:hover { z-index: 20; transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); }
-        .eco-node.active { z-index: 30; transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.4); }
-
-        /* Estilos específicos de nodos */
-        .node-center {
-            width: 160px; height: 160px;
-            font-size: 1.1rem;
-            color: white;
-            border: 4px solid rgba(255,255,255,0.3);
-        }
-        .node-satellite {
-            width: 110px; height: 110px;
-            font-size: 0.8rem;
-            padding: 5px;
-            border: 2px solid;
+        /* Animación de "Entrada" (Zoom In effect) */
+        .zooming-in {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0) !important;
         }
 
-        /* Botón "Volver al Núcleo" (Mini Mapa) */
-        .back-to-core {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 40;
+        /* --- BOTÓN VOLVER (BREADCRUMBS) --- */
+        .nav-controls {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; z-index: 60;
+            opacity: 0; pointer-events: none; transition: opacity 0.5s;
+        }
+        .nav-controls.visible { opacity: 1; pointer-events: auto; }
+
+        .nav-btn {
+            background: rgba(15, 23, 42, 0.9); border: 1px solid #334155; color: #94a3b8;
+            padding: 10px 20px; border-radius: 30px; font-family: 'Rajdhani', sans-serif;
+            font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
             transition: all 0.3s;
-            transform: translateX(-150%); /* Oculto */
-            border: 1px solid #e5e7eb;
         }
-        .back-to-core.visible { transform: translateX(0); }
-        .back-to-core:hover { background-color: #f0fdf4; border-color: #16a34a; }
+        .nav-btn:hover { background: #334155; color: white; border-color: white; }
+        .nav-btn-home { border-color: #22c55e; color: #22c55e; }
+        .nav-btn-home:hover { background: #22c55e; color: #020617; }
 
-        /* Iconos */
-        .node-icon { font-size: 1.8rem; margin-bottom: 4px; }
+        /* --- PANEL LATERAL --- */
+        .side-panel {
+            width: 450px; background: rgba(15, 23, 42, 0.98); border-left: 1px solid #334155;
+            position: absolute; right: 0; top: 70px; bottom: 0; transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100;
+            box-shadow: -20px 0 60px rgba(0,0,0,0.9); display: flex; flex-direction: column;
+        }
+        .side-panel.open { transform: translateX(0); }
+        .panel-content { padding: 2.5rem; overflow-y: auto; flex: 1; }
 
-        /* Animaciones de entrada */
-        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
-        /* Responsive */
         @media (max-width: 768px) {
-            .main-wrapper { flex-direction: column; height: auto; }
-            .graph-area { height: 600px; }
-            .info-panel { width: 100%; position: relative; transform: none; display: none; }
-            .info-panel.active { display: block; }
-            .node-center { width: 120px; height: 120px; font-size: 0.9rem; }
-            .node-satellite { width: 90px; height: 90px; font-size: 0.7rem; }
+            .cinematic-h2 { font-size: 1.8rem; }
+            .node-center { width: 130px; height: 130px; font-size: 0.8rem; }
+            .node-branch { width: 100px; height: 100px; font-size: 0.7rem; }
+            .node-leaf { width: 80px; height: 80px; font-size: 0.65rem; }
+            .side-panel { width: 100%; top: 60px; }
+            .nav-controls { width: 90%; justify-content: center; flex-wrap: wrap; }
         }
     </style>
 </head>
-<body class="flex flex-col min-h-screen">
+<body>
 
-    <!-- HEADER -->
-    <header class="bg-white shadow-sm sticky top-0 z-50 h-[70px]">
-        <div class="max-w-7xl mx-auto px-4 h-full flex justify-between items-center">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetSystem()">
-                <div class="h-10 w-10 rounded-full overflow-hidden border border-gray-200">
-                    <img src="https://raw.githubusercontent.com/instructorandradedcc/propuesta-AR/main/logofundacion.jpg" alt="Logo" class="h-full w-full object-cover">
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold text-gray-900 leading-tight">ECORECYCLE</h1>
-                    <p class="text-xs text-gray-500">Fundación Ecopiensa Evolution</p>
-                </div>
-            </div>
-            <nav class="hidden md:flex space-x-6 text-sm font-medium">
-                <button onclick="resetSystem()" class="text-green-700">Explorador Interactivo</button>
-                <button onclick="document.getElementById('legal-modal').showModal()" class="text-gray-500 hover:text-green-700">Marco Legal General</button>
-            </nav>
-        </div>
-    </header>
+    <div class="bg-neural" id="bg-neural"></div>
+    <div class="bg-grid"></div>
 
-    <!-- MAIN INTERFACE -->
-    <div class="main-wrapper">
+    <div class="app-container">
         
-        <!-- ÁREA DEL GRAFO -->
-        <div class="graph-area" id="graph-container">
-            
-            <!-- Botón Flotante para Volver -->
-            <div id="back-btn" class="back-to-core" onclick="resetSystem()">
-                <div class="w-3 h-3 rounded-full bg-green-600 animate-pulse"></div>
-                <span class="text-sm font-bold text-gray-700">Volver al Núcleo ECA</span>
-            </div>
-
-            <!-- Título Dinámico -->
-            <div class="absolute top-6 left-0 w-full text-center pointer-events-none z-0">
-                <h2 id="system-title" class="text-2xl font-bold text-gray-800 transition-all duration-500">Macro-Ecosistema</h2>
-                <p id="system-desc" class="text-sm text-gray-500 transition-all duration-500">La ECA como cerebro logístico central</p>
-            </div>
-
-            <!-- Contenedor de Nodos -->
-            <div id="hub-container" class="eco-hub-container">
-                <!-- Se renderiza con JS -->
-            </div>
-        </div>
-
-        <!-- PANEL LATERAL DE INFORMACIÓN -->
-        <aside id="info-panel" class="info-panel">
-            <div id="panel-content" class="fade-in-up">
-                <div class="text-center text-gray-400 mt-20">
-                    <i class="fa-solid fa-arrow-left text-4xl mb-4"></i>
-                    <p>Selecciona un nodo del diagrama<br>para ver su información detallada.</p>
+        <header class="app-header flex items-center justify-between px-6 shadow-lg">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('macro')">
+                <img src="https://raw.githubusercontent.com/instructorandradedcc/propuesta-AR/main/logofundacion.jpg" class="h-10 w-10 rounded-full border border-green-500 shadow-[0_0_10px_#22c55e]" alt="Logo">
+                <div>
+                    <h1 class="font-rajdhani font-bold text-xl text-white leading-none">ECORECYCLE</h1>
+                    <span class="text-[10px] text-green-400 uppercase tracking-widest">Evolution</span>
                 </div>
             </div>
-        </aside>
+            <nav class="hidden md:flex gap-6">
+                <div class="flex items-center gap-2 text-xs text-slate-400">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>SISTEMA DE NAVEGACIÓN INTELIGENTE</span>
+                </div>
+            </nav>
+        </header>
+
+        <div class="title-section">
+            <h2 class="cinematic-h2" id="main-title">MACRO-ECOSISTEMA</h2>
+            <div class="h-1 w-24 bg-green-500 mx-auto rounded-full mt-2 shadow-[0_0_15px_#22c55e]" id="title-bar"></div>
+            <p class="cinematic-p" id="sub-title">CENTRO DE OPERACIONES ECA</p>
+        </div>
+
+        <div class="graph-stage">
+            <div id="hub-container" class="eco-hub-container"></div>
+            
+            <!-- CONTROLES DE NAVEGACIÓN -->
+            <div class="nav-controls" id="nav-controls">
+                <button class="nav-btn nav-btn-home" onclick="navigateTo('macro')">
+                    <i class="fa-solid fa-network-wired"></i> ECA CENTRAL
+                </button>
+                <button class="nav-btn" id="btn-back" onclick="goBack()">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> Atrás
+                </button>
+            </div>
+        </div>
 
     </div>
 
-    <!-- MODAL LEGAL -->
-    <dialog id="legal-modal" class="p-8 rounded-xl shadow-2xl border-none backdrop:bg-gray-900/50 max-w-2xl w-full">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4">Marco Legal General</h3>
-        <ul class="list-disc pl-5 space-y-2 text-gray-700">
-            <li><strong>Constitución Política:</strong> Art. 79 (Derecho a un ambiente sano).</li>
-            <li><strong>Ley 99 de 1993:</strong> Creación del SINA.</li>
-            <li><strong>Ley 142 de 1994:</strong> Régimen de Servicios Públicos Domiciliarios.</li>
-            <li><strong>CONPES 3874:</strong> Política Nacional para la Gestión Integral de Residuos Sólidos.</li>
-        </ul>
-        <div class="mt-6 text-right">
-            <button onclick="document.getElementById('legal-modal').close()" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cerrar</button>
+    <!-- PANEL LATERAL -->
+    <aside class="side-panel" id="side-panel">
+        <div class="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-900/50">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Detalle del Nodo</span>
+            <button onclick="closePanel()" class="text-slate-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-800">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
         </div>
-    </dialog>
+        <div id="panel-content" class="panel-content"></div>
+    </aside>
 
     <script>
-        // =================================================================
-        // BASE DE DATOS MAESTRA (Estructura Neuronal)
-        // =================================================================
-        const ecosystemDB = {
-            // --- NIVEL 0: MACRO ---
+        // ==========================================
+        // BASE DE DATOS JERÁRQUICA (ÁRBOL DE NODOS)
+        // ==========================================
+        const DB = {
+            // NODO RAIZ
             'macro': {
-                config: { color: '#15803d', title: "ECA CENTRAL", subtitle: "Hub Logístico", icon: "fa-solid fa-network-wired" },
+                title: "MACRO-ECOSISTEMA", subtitle: "ECA: Estación Central de Aprovechamiento",
+                color: "#22c55e", icon: "fa-solid fa-network-wired",
                 nodes: [
-                    { id: 'rcd', label: 'RCD Escombros', icon: 'fa-solid fa-trowel-bricks', color: '#1e40af', angle: -90 },
-                    { id: 'ecocidas', label: 'ECO-CIDAS', icon: 'fa-solid fa-microchip', color: '#7e22ce', angle: -38 },
-                    { id: 'ecocia', label: 'ECO-CIA', icon: 'fa-solid fa-wheat-awn', color: '#4338ca', angle: 12 },
-                    { id: 'lodos', label: 'Lodos', icon: 'fa-solid fa-droplet', color: '#4b5563', angle: 64 },
-                    { id: 'granjas', label: 'Eco-Granjas', icon: 'fa-solid fa-piggy-bank', color: '#16a34a', angle: 115 },
-                    { id: 'organicos', label: 'Orgánicos', icon: 'fa-solid fa-leaf', color: '#ca8a04', angle: 167 },
-                    { id: 'reciclables', label: 'Reciclables', icon: 'fa-solid fa-recycle', color: '#0d9488', angle: 218 }
+                    { id: 'rcd', label: 'Gestión RCD', icon: 'fa-solid fa-trowel-bricks', color: '#3b82f6', angle: -90 },
+                    { id: 'ecocidas', label: 'Tecnología (IA)', icon: 'fa-solid fa-microchip', color: '#a855f7', angle: -30 },
+                    { id: 'ecocia', label: 'ECO-CIA Rural', icon: 'fa-solid fa-wheat-awn', color: '#6366f1', angle: 30 },
+                    { id: 'lodos', label: 'Lodos PTAR', icon: 'fa-solid fa-droplet', color: '#94a3b8', angle: 90 },
+                    { id: 'organicos', label: 'Orgánicos', icon: 'fa-solid fa-leaf', color: '#eab308', angle: 150 },
+                    { id: 'reciclables', label: 'Reciclables', icon: 'fa-solid fa-recycle', color: '#14b8a6', angle: 210 }
                 ]
             },
 
-            // --- NIVEL 1: SUBSISTEMAS ---
-            
-            // 1. RCD (Residuos de Construcción y Demolición)
+            // --- RAMA 1: RCD ---
             'rcd': {
-                info: {
-                    title: "Gestión Integral de RCD",
-                    desc: "Transformación industrial de escombros para infraestructura sostenible.",
-                    details: [
-                        "Sustitución de tracción animal (300 carretilleros).",
-                        "Producción de agregados reciclados.",
-                        "Mitigación de puntos críticos ilegales."
-                    ],
-                    legal: "Resolución 1257 de 2021 (Gestión Integral RCD) y Res. 0472 de 2017.",
-                    chart: { labels: ['Vías', 'Prefabricados', 'Otros'], data: [50, 30, 20] }
-                },
+                parent: 'macro', title: "LÍNEA RCD", subtitle: "Transformación de Escombros",
+                color: "#3b82f6", icon: "fa-solid fa-industry",
                 nodes: [
-                    { id: 'rcd_rec', label: 'Recolección', icon: 'fa-solid fa-truck-ramp-box', color: '#ea580c', infoId: 'rcd_rec_info' },
-                    { id: 'rcd_plant', label: 'Planta', icon: 'fa-solid fa-industry', color: '#1e40af', infoId: 'rcd_plant_info' },
-                    { id: 'rcd_prod', label: 'Productos', icon: 'fa-solid fa-shapes', color: '#0d9488', infoId: 'rcd_prod_info' },
-                    { id: 'rcd_norm', label: 'Normativa', icon: 'fa-solid fa-scale-balanced', color: '#dc2626', infoId: 'rcd_norm_info' },
-                    { id: 'rcd_soc', label: 'Social', icon: 'fa-solid fa-users', color: '#eab308', infoId: 'rcd_soc_info' }
+                    { id: 'rcd_prod', label: 'Productos', icon: 'fa-solid fa-cubes', type: 'branch', angle: -90 },
+                    { id: 'rcd_char', label: 'Características', icon: 'fa-solid fa-cogs', type: 'branch', angle: 30 },
+                    { id: 'rcd_legal', label: 'Legalidad', icon: 'fa-solid fa-scale-balanced', type: 'legal', angle: 150 }
                 ]
             },
-
-            // 2. ECO-CIDAS (Tecnología)
-            'ecocidas': {
-                info: {
-                    title: "Centro de Inteligencia (ECO-CIDAS)",
-                    desc: "Cerebro digital: IA, Robótica e IoT aplicados a la sostenibilidad.",
-                    details: [
-                        "Diseño generativo de prótesis.",
-                        "Monitoreo IoT de cultivos.",
-                        "ERP predictivo de residuos."
-                    ],
-                    legal: "Ley 1951 de 2019 (MinCiencias) y CONPES 3975 (Transformación Digital).",
-                    chart: { labels: ['IA', 'Robótica', 'Data'], data: [40, 35, 25] }
+                // RCD -> Productos
+                'rcd_prod': {
+                    parent: 'rcd', title: "CATÁLOGO RCD", subtitle: "Materiales Sostenibles",
+                    color: "#60a5fa", icon: "fa-solid fa-cubes",
+                    nodes: [
+                        { id: 'p_ladrillo', label: 'Ladrillos', icon: '🧱', angle: -90 }, // Ladrillo Lego/Estructural
+                        { id: 'p_adoquin', label: 'Adoquines', icon: '🔲', angle: -45 },
+                        { id: 'p_via', label: 'Base B-200', icon: '🛣️', angle: 0 },
+                        { id: 'p_mob', label: 'Mobiliario', icon: '🪑', angle: 45 },
+                        { id: 'p_tub', label: 'Tuberías', icon: '🚇', angle: 90 }
+                    ]
                 },
-                nodes: [
-                    { id: 'cida_ia', label: 'IA & Data', icon: 'fa-solid fa-brain', color: '#7e22ce', infoId: 'cida_ia_info' },
-                    { id: 'cida_rob', label: 'Robótica', icon: 'fa-solid fa-robot', color: '#4338ca', infoId: 'cida_rob_info' },
-                    { id: 'cida_pro', label: 'Biónica', icon: 'fa-solid fa-hand', color: '#0d9488', infoId: 'cida_pro_info' },
-                    { id: 'cida_edu', label: 'Edu 4.0', icon: 'fa-solid fa-graduation-cap', color: '#ea580c', infoId: 'cida_edu_info' }
-                ]
-            },
-
-            // 3. ECO-CIA (Agro)
-            'ecocia': {
-                info: {
-                    title: "ECO-CIA (Nodo Rural)",
-                    desc: "Infraestructura comunitaria para el acopio y desarrollo campesino.",
-                    details: [
-                        "Reducción de intermediarios.",
-                        "Centro de salud y educación rural.",
-                        "Valor agregado a cosechas."
-                    ],
-                    legal: "Resolución 464 de 2017 (Agricultura Campesina, Familiar y Comunitaria).",
-                    chart: { labels: ['Acopio', 'Social'], data: [60, 40] }
+                // RCD -> Características
+                'rcd_char': {
+                    parent: 'rcd', title: "PROCESO RCD", subtitle: "Operación y Tecnología",
+                    color: "#93c5fd", icon: "fa-solid fa-cogs",
+                    nodes: [
+                        { id: 'c_maq', label: 'Maquinaria', icon: '🚜', angle: -60 }, // Bobcat, Retro
+                        { id: 'c_soc', label: 'Carretilleros', icon: '🐴', angle: 60 }, // Sustitución VTA
+                        { id: 'c_cap', label: '30k Ton/Año', icon: '📈', angle: 180 }
+                    ]
                 },
-                nodes: [
-                    { id: 'cia_aco', label: 'Acopio', icon: 'fa-solid fa-warehouse', color: '#4338ca', infoId: 'cia_aco_info' },
-                    { id: 'cia_sal', label: 'Salud', icon: 'fa-solid fa-heart-pulse', color: '#dc2626', infoId: 'cia_sal_info' },
-                    { id: 'cia_esc', label: 'Escuela', icon: 'fa-solid fa-school', color: '#16a34a', infoId: 'cia_esc_info' },
-                    { id: 'cia_mer', label: 'Mercado', icon: 'fa-solid fa-shop', color: '#ca8a04', infoId: 'cia_mer_info' }
-                ]
-            },
 
-            // 4. ORGÁNICOS
+            // --- RAMA 2: ORGÁNICOS ---
             'organicos': {
-                info: {
-                    title: "Aprovechamiento Orgánico",
-                    desc: "Biotecnología para devolver la vida al suelo.",
-                    details: [
-                        "Compostaje tecnificado.",
-                        "Reactores SITAV.",
-                        "Abonos líquidos y sólidos."
-                    ],
-                    legal: "Resolución 054 de 2021 (Tarifas de Aseo y Aprovechamiento).",
-                    chart: { labels: ['Compost', 'Humus'], data: [70, 30] }
-                },
+                parent: 'macro', title: "LÍNEA ORGÁNICA", subtitle: "Bioreactores y Alimentos",
+                color: "#eab308", icon: "fa-solid fa-leaf",
                 nodes: [
-                    { id: 'org_com', label: 'Compost', icon: 'fa-solid fa-mound', color: '#a16207', infoId: 'org_com_info' },
-                    { id: 'org_lom', label: 'Lombriz', icon: 'fa-solid fa-worm', color: '#ea580c', infoId: 'org_lom_info' },
-                    { id: 'org_tec', label: 'SITAV', icon: 'fa-solid fa-flask', color: '#7e22ce', infoId: 'org_tec_info' },
-                    { id: 'org_pro', label: 'Abonos', icon: 'fa-solid fa-bottle-droplet', color: '#15803d', infoId: 'org_pro_info' }
+                    { id: 'org_prod', label: 'Productos', icon: 'fa-solid fa-box-open', type: 'branch', angle: -90 },
+                    { id: 'org_char', label: 'Características', icon: 'fa-solid fa-microscope', type: 'branch', angle: 30 },
+                    { id: 'org_legal', label: 'Legalidad', icon: 'fa-solid fa-scale-balanced', type: 'legal', angle: 150 }
                 ]
             },
+                // Orgánicos -> Productos
+                'org_prod': {
+                    parent: 'organicos', title: "PRODUCTOS BIO", subtitle: "Abonos y Alimentos",
+                    color: "#facc15", icon: "fa-solid fa-box-open",
+                    nodes: [
+                        { id: 'p_abono', label: 'Bio-Abono', icon: '🌱', angle: -90 },
+                        { id: 'p_biogas', label: 'Biogás', icon: '⚡', angle: 0 },
+                        { id: 'p_huevos', label: 'Huevos', icon: '🥚', angle: 90 }, // De Eco-Aldeas
+                        { id: 'p_peces', label: 'Peces', icon: '🐟', angle: 180 }
+                    ]
+                },
+                // Orgánicos -> Características
+                'org_char': {
+                    parent: 'organicos', title: "MODELO BIO", subtitle: "Tecnología SITAV",
+                    color: "#fde047", icon: "fa-solid fa-microscope",
+                    nodes: [
+                        { id: 'c_sitav', label: 'Bioreactores', icon: '⚗️', angle: -45 },
+                        { id: 'c_aldea', label: 'Eco-Aldea', icon: '🏡', angle: 45 }, // 50-100 gallinas
+                        { id: 'c_circ', label: 'Circular', icon: '♻️', angle: 180 }
+                    ]
+                },
 
-            // 5. RECICLABLES
+            // --- RAMA 3: RECICLABLES ---
             'reciclables': {
-                info: {
-                    title: "Reciclables y Plásticos",
-                    desc: "Valorización de materiales secos y economía circular.",
-                    details: [
-                        "Madera plástica.",
-                        "Filamento 3D.",
-                        "Pirólisis (Waste-to-Energy)."
-                    ],
-                    legal: "Resolución 1407 de 2018 (Responsabilidad Extendida del Productor).",
-                    chart: { labels: ['Plástico', 'Cartón', 'Otros'], data: [50, 30, 20] }
-                },
+                parent: 'macro', title: "LÍNEA RECICLAJE", subtitle: "Valorización Materiales",
+                color: "#14b8a6", icon: "fa-solid fa-recycle",
                 nodes: [
-                    { id: 'rec_mad', label: 'Madera P.', icon: 'fa-solid fa-plank', color: '#15803d', infoId: 'rec_mad_info' },
-                    { id: 'rec_pir', label: 'Pirólisis', icon: 'fa-solid fa-fire', color: '#dc2626', infoId: 'rec_pir_info' },
-                    { id: 'rec_3d', label: 'Filamento', icon: 'fa-solid fa-print', color: '#7e22ce', infoId: 'rec_3d_info' },
-                    { id: 'rec_tie', label: 'EcoTienda', icon: 'fa-solid fa-store', color: '#ca8a04', infoId: 'rec_tie_info' }
+                    { id: 'rec_prod', label: 'Productos', icon: 'fa-solid fa-shapes', type: 'branch', angle: -90 },
+                    { id: 'rec_char', label: 'Características', icon: 'fa-solid fa-sliders', type: 'branch', angle: 30 },
+                    { id: 'rec_legal', label: 'Legalidad', icon: 'fa-solid fa-scale-balanced', type: 'legal', angle: 150 }
                 ]
             },
+                'rec_prod': {
+                    parent: 'reciclables', title: "TRANSFORMACIÓN", subtitle: "Nuevos Materiales",
+                    color: "#2dd4bf", icon: "fa-solid fa-shapes",
+                    nodes: [
+                        { id: 'p_madera', label: 'Madera P.', icon: '🪵', angle: -90 },
+                        { id: 'p_fil', label: 'Filamento 3D', icon: '🧵', angle: 0 },
+                        { id: 'p_comb', label: 'Combustibles', icon: '🔥', angle: 90 }, // Pirólisis
+                        { id: 'p_jab', label: 'Jabones', icon: '🧼', angle: 180 } // Aceites
+                    ]
+                },
+                'rec_char': {
+                    parent: 'reciclables', title: "SISTEMA ECA", subtitle: "Logística y Tech",
+                    color: "#5eead4", icon: "fa-solid fa-sliders",
+                    nodes: [
+                        { id: 'c_tie', label: 'Eco-Tiendas', icon: '🏪', angle: -45 }, // Canje
+                        { id: 'c_pir', label: 'Pirólisis', icon: '🏭', angle: 45 },
+                        { id: 'c_inc', label: 'Inclusión', icon: '🤝', angle: 180 }
+                    ]
+                },
 
-            // 6. LODOS
+            // --- RAMA 4: TECNOLOGÍA (ECO-CIDAS) ---
+            'ecocidas': {
+                parent: 'macro', title: "ECO-CIDAS", subtitle: "Tecnología e IA",
+                color: "#a855f7", icon: "fa-solid fa-microchip",
+                nodes: [
+                    { id: 'tec_prod', label: 'Innovación', icon: 'fa-solid fa-robot', type: 'branch', angle: -90 },
+                    { id: 'tec_char', label: 'Características', icon: 'fa-solid fa-server', type: 'branch', angle: 30 },
+                    { id: 'tec_legal', label: 'Legalidad', icon: 'fa-solid fa-scale-balanced', type: 'legal', angle: 150 }
+                ]
+            },
+                'tec_prod': {
+                    parent: 'ecocidas', title: "I+D+i", subtitle: "Productos Tecnológicos",
+                    color: "#c084fc", icon: "fa-solid fa-robot",
+                    nodes: [
+                        { id: 'p_prot', label: 'Prótesis', icon: '🦾', angle: -90 },
+                        { id: 'p_soft', label: 'ERP + IA', icon: '💻', angle: 0 },
+                        { id: 'p_iot', label: 'Sensores', icon: '📡', angle: 90 }
+                    ]
+                },
+                'tec_char': {
+                    parent: 'ecocidas', title: "CITTA", subtitle: "Centro Investigación",
+                    color: "#d8b4fe", icon: "fa-solid fa-server",
+                    nodes: [
+                        { id: 'c_vis', label: 'Visión Art.', icon: '👁️', angle: -45 },
+                        { id: 'c_auto', label: 'Automatización', icon: '🤖', angle: 45 },
+                        { id: 'c_edu', label: 'Chatbots', icon: '🎓', angle: 180 }
+                    ]
+                },
+            
+            // --- OTRAS RAMAS SIMPLIFICADAS ---
+            'ecocia': {
+                parent: 'macro', title: "ECO-CIA", subtitle: "Logística Rural",
+                color: "#6366f1", icon: "fa-solid fa-wheat-awn",
+                nodes: [
+                     { id: 'cia_car', label: 'Logística', icon: '🚚', type: 'branch', angle: 0 },
+                     { id: 'cia_leg', label: 'Legalidad', icon: '⚖️', type: 'legal', angle: 180 }
+                ]
+            },
             'lodos': {
-                info: {
-                    title: "Tratamiento de Lodos",
-                    desc: "Saneamiento y conversión de biosólidos.",
-                    details: ["Secado térmico.", "Higienización.", "Uso agrícola o combustible."],
-                    legal: "Decreto 1287 de 2014 (Uso de biosólidos).",
-                    chart: { labels: ['Saneado', 'Residuo'], data: [90, 10] }
-                },
+                parent: 'macro', title: "LODOS", subtitle: "Saneamiento",
+                color: "#94a3b8", icon: "fa-solid fa-droplet",
                 nodes: [
-                    { id: 'lod_sec', label: 'Secado', icon: 'fa-solid fa-sun', color: '#ea580c', infoId: 'lod_sec_info' },
-                    { id: 'lod_uso', label: 'Uso Final', icon: 'fa-solid fa-seedling', color: '#16a34a', infoId: 'lod_uso_info' }
-                ]
-            },
-
-            // 7. GRANJAS
-            'granjas': {
-                info: {
-                    title: "Eco-Granjas Integrales",
-                    desc: "Seguridad alimentaria autosostenible.",
-                    details: ["Cultivos pancoger.", "Piscicultura.", "Energía con biogás."],
-                    legal: "ODS 2 (Hambre Cero) y Política de Seguridad Alimentaria.",
-                    chart: { labels: ['Veg', 'Animal'], data: [50, 50] }
-                },
-                nodes: [
-                    { id: 'gra_cul', label: 'Cultivos', icon: 'fa-solid fa-carrot', color: '#16a34a', infoId: 'gra_cul_info' },
-                    { id: 'gra_ani', label: 'Pecuaria', icon: 'fa-solid fa-cow', color: '#a16207', infoId: 'gra_ani_info' },
-                    { id: 'gra_ene', label: 'Biogás', icon: 'fa-solid fa-bolt', color: '#eab308', infoId: 'gra_ene_info' }
+                     { id: 'lod_car', label: 'Proceso', icon: '⚙️', type: 'branch', angle: 0 },
+                     { id: 'lod_leg', label: 'Legalidad', icon: '⚖️', type: 'legal', angle: 180 }
                 ]
             }
         };
 
-        // =================================================================
-        // DETALLES ESPECÍFICOS (Info Panel)
-        // =================================================================
-        const infoDB = {
+        // ==========================================
+        // CONTENIDO DETALLADO (TEXTOS)
+        // ==========================================
+        const TEXTS = {
             // RCD
-            'rcd_rec_info': { title: "Recolección Formalizada", text: "Transición de 300 carretilleros a motocarros. Cumplimiento de la Ley 2138 de 2021 sobre sustitución de vehículos de tracción animal." },
-            'rcd_plant_info': { title: "Planta de Transformación", text: "Maquinaria de trituración primaria y secundaria. Capacidad de separar acero (magnético), plásticos y áridos. Licencia ambiental CVC." },
-            'rcd_prod_info': { title: "Catálogo de Productos", text: "1. Sub-base granular (B-200) para vías. <br>2. Adoquines y Gramoquines. <br>3. Bloques estructurales y tipo Lego. <br>Cumplen Normas Técnicas Colombianas (NTC)." },
-            'rcd_norm_info': { title: "Marco Normativo RCD", text: "<strong>Res. 1257/2021:</strong> Fija metas de aprovechamiento del 30%. Obliga a grandes generadores a usar gestores autorizados." },
-            'rcd_soc_info': { title: "Impacto Social", text: "Dignificación del reciclador de oficio. Empleos verdes directos en planta e indirectos en logística." },
-
-            // ECO-CIDAS
-            'cida_ia_info': { title: "Inteligencia Artificial", text: "Algoritmos predictivos para rutas de recolección y clasificación óptica de materiales en banda." },
-            'cida_rob_info': { title: "Robótica Industrial", text: "Brazos robóticos para separación de residuos peligrosos y maquinaria pesada autónoma en patios." },
-            'cida_pro_info': { title: "Biónica y Salud", text: "Diseño generativo de prótesis de bajo costo usando plástico reciclado (PET/PP). Impresión 3D personalizada." },
-            'cida_edu_info': { title: "Educación 4.0", text: "Plataformas virtuales para capacitación campesina y formación técnica en economía circular." },
-
-            // ECO-CIA
-            'cia_aco_info': { title: "Centro de Acopio", text: "Logística inversa: El camión que lleva insumos trae cosechas. Pesaje digital y pago justo inmediato." },
-            'cia_sal_info': { title: "Salud Rural", text: "Puesto de salud básico y telemedicina para comunidades veredales alejadas." },
-            'cia_mer_info': { title: "Comercialización", text: "Eliminación de intermediarios. Conexión directa con Eco-Tiendas urbanas y mercados mayoristas." },
-
-            // ORGANICOS
-            'org_com_info': { title: "Compostaje Aerobio", text: "Pilas con volteo mecánico y aireación forzada. Control de temperatura para eliminar patógenos." },
-            'org_lom_info': { title: "Lombricultura", text: "Uso de Lombriz Roja Californiana para producir humus sólido y lixiviado (abono líquido) de alta calidad." },
-            'org_tec_info': { title: "Reactores SITAV", text: "Sistemas de Transformación Acelerada. Reducen el tiempo de compostaje de 3 meses a 3 semanas." },
+            'rcd_legal': { title: "Marco Legal RCD", text: "<strong>Resolución 1257 de 2021:</strong> Regula al Gestor de RCD y Plantas de Aprovechamiento.<br><strong>NTC 6421:</strong> Calidad de agregados reciclados.<br><strong>NTC 2017:</strong> Resistencia de adoquines.<br><strong>NTC 4026/4076:</strong> Normas para bloques estructurales y divisorios." },
+            'p_ladrillo': { title: "Ladrillos Ecológicos", text: "Fabricados con áridos reciclados. Tipos: Lego (autoconstrucción), Estructural y Macizo. Ahorran costos y CO2." },
+            'p_adoquin': { title: "Adoquines", text: "Para espacio público. Cumplen NTC 2017 (>4.2 MPa). Incluye 'Gramoquines' permeables." },
+            'c_maq': { title: "Maquinaria", text: "Uso de Bobcats, Retroexcavadoras y Trituradoras industriales. Kit de automatización con IA opcional." },
+            'c_soc': { title: "Sustitución VTA", text: "Formalización de 300 carretilleros. Cambio de tracción animal a unidades productivas motorizadas (Ley 2138)." },
+            
+            // ORGÁNICOS
+            'org_legal': { title: "Normativa Bio", text: "<strong>Res ICA 0684:</strong> Registro de Productor de Abonos Orgánicos.<br><strong>NTC 5167:</strong> Límites de patógenos y metales.<br><strong>Res ICA 3651/2640:</strong> Bioseguridad en granjas avícolas y porcícolas (Prohibición de lavazas)." },
+            'p_abono': { title: "Abono Formulado", text: "Fertilizante orgánico libre de patógenos. Producción proyectada: 1.2M unidades/año." },
+            'c_sitav': { title: "Tecnología SITAV", text: "Sistema de bioreactores acelerados. Controla pH y temperatura para compostaje rápido." },
+            'c_aldea': { title: "Eco-Aldeas", text: "Unidades productivas de 50-100 gallinas, cerdos y huertas. Economía circular: residuos alimentan animales, estiércol genera biogás." },
 
             // RECICLABLES
-            'rec_mad_info': { title: "Madera Plástica", text: "Postes, estibas y mobiliario urbano (bancas) fabricados con polímeros mixtos. Resistentes a la intemperie." },
-            'rec_pir_info': { title: "Pirólisis", text: "Descomposición térmica de plásticos no reciclables y llantas para obtener combustibles líquidos y negro de humo." },
-            'rec_3d_info': { title: "Filamento 3D", text: "Extrusión de hilo PET/PLA reciclado para impresoras 3D, insumo base del laboratorio de prótesis." },
-            'rec_tie_info': { title: "Eco-Tiendas", text: "Puntos de canje barrial: La comunidad entrega reciclaje separado y recibe puntos para alimentos." },
+            'rec_legal': { title: "Normativa Reciclaje", text: "<strong>Decreto 596 de 2016:</strong> Operatividad de ECAs y tarifa de aseo.<br><strong>Res 1407:</strong> Responsabilidad Extendida del Productor (REP) Envases.<br><strong>Dec 1076:</strong> Licencia ambiental para pirólisis." },
+            'p_comb': { title: "Combustibles", text: "Obtenidos por pirólisis de plásticos y llantas. Aceites usados convertidos en Biodiésel o Jabones." },
+            'c_tie': { title: "Eco-Tiendas", text: "Puntos barriales de canje. La comunidad intercambia residuos separados por alimentos o productos de las Eco-Aldeas." },
 
-            // LODOS
-            'lod_sec_info': { title: "Secado Térmico", text: "Reducción de humedad y volumen de lodos de PTAR mediante hornos solares o biogás." },
-            'lod_uso_info': { title: "Uso Final", text: "Biosólidos estabilizados (Clase A/B) según Dec. 1287 para recuperación de suelos degradados o combustible." }
+            // TECNOLOGÍA
+            'tec_legal': { title: "Normativa Tech", text: "<strong>Dec 4725:</strong> Dispositivos médicos sobre medida (Prótesis).<br><strong>Ley 1581:</strong> Habeas Data y ética de IA.<br><strong>RAC 100:</strong> Regulación de drones agrícolas." },
+            'p_prot': { title: "Prótesis Biónicas", text: "Fabricadas con plástico reciclado (PET/PP) y diseño generativo por IA. Bajo costo y alta personalización." },
+            'c_vis': { title: "Visión Artificial", text: "Cámaras que identifican materiales en bandas transportadoras para clasificación automática." }
         };
 
-        // =================================================================
-        // MOTOR DE RENDERIZADO
-        // =================================================================
-        
-        let currentSystem = 'macro';
+        // ==========================================
+        // LÓGICA DE NAVEGACIÓN "ZOOM"
+        // ==========================================
+        let currentId = 'macro';
+        let historyStack = [];
 
-        function resetSystem() {
-            renderSystem('macro');
-        }
-
-        function renderSystem(systemKey) {
-            currentSystem = systemKey;
+        function renderNode(id, fromBack = false) {
             const container = document.getElementById('hub-container');
-            const titleEl = document.getElementById('system-title');
-            const descEl = document.getElementById('system-desc');
-            const backBtn = document.getElementById('back-btn');
-            const infoPanel = document.getElementById('info-panel');
-
-            // 1. Limpiar y Preparar
-            container.innerHTML = '';
-            infoPanel.classList.remove('active'); // Ocultar panel al cambiar de sistema
+            const data = DB[id];
             
-            // 2. Configurar Datos
-            let data, centerColor, centerIcon, centerLabel;
-            
-            if (systemKey === 'macro') {
-                data = ecosystemDB.macro;
-                centerColor = data.config.color;
-                centerIcon = data.config.icon;
-                centerLabel = data.config.title;
-                titleEl.innerText = "Macro-Ecosistema";
-                descEl.innerText = "La ECA como cerebro logístico central";
-                backBtn.classList.remove('visible');
-            } else {
-                data = ecosystemDB[systemKey];
-                centerColor = ecosystemDB.macro.nodes.find(n => n.id === systemKey).color;
-                centerIcon = ecosystemDB.macro.nodes.find(n => n.id === systemKey).icon;
-                centerLabel = data.info.title; // Título del subsistema
-                titleEl.innerText = data.info.title;
-                descEl.innerText = data.info.desc;
-                backBtn.classList.add('visible');
-                
-                // Mostrar info general del subsistema en el panel inmediatamente
-                showPanel(data.info.title, data.info.desc, data.info.details, data.info.legal, data.info.chart, centerColor);
-            }
+            if (!data) return;
 
-            // 3. Crear Nodo Central
-            const centerNode = document.createElement('div');
-            centerNode.className = `eco-node node-center`;
-            centerNode.style.background = `linear-gradient(135deg, ${centerColor}, #1f2937)`;
-            centerNode.style.left = '50%';
-            centerNode.style.top = '50%';
-            
-            centerNode.innerHTML = `
-                <i class="${centerIcon} text-4xl mb-2"></i>
-                <div class="leading-tight">${centerLabel}</div>
-            `;
-            
-            // Si es Macro, click en centro abre modal legal general. Si es sub, no hace nada o reinicia info.
-            if(systemKey === 'macro') {
-                centerNode.onclick = () => document.getElementById('legal-modal').showModal();
-            } else {
-                centerNode.onclick = () => showPanel(data.info.title, data.info.desc, data.info.details, data.info.legal, data.info.chart, centerColor);
-            }
-
-            container.appendChild(centerNode);
-
-            // Animación de entrada del centro
-            setTimeout(() => {
-                centerNode.style.transform = "translate(-50%, -50%) scale(1)";
-            }, 100);
-
-            // 4. Crear Satélites
-            data.nodes.forEach((node, index) => {
-                // Posición Radial
-                const angleRad = (node.angle * Math.PI) / 180;
-                // Radio diferente para móvil
-                const radius = window.innerWidth < 768 ? 35 : 32; 
-                const x = 50 + (radius * Math.cos(angleRad)); 
-                const y = 50 + (radius * Math.sin(angleRad)); 
-
-                // Línea Neuronal
-                const line = document.createElement('div');
-                line.className = 'neural-line';
-                line.style.transform = `rotate(${node.angle}deg)`;
-                // Longitud de la línea basada en radio
-                line.style.width = '0%'; // Inicio para animación
-                
-                // Nodo
-                const satNode = document.createElement('div');
-                satNode.className = `eco-node node-satellite`;
-                satNode.style.left = `${x}%`;
-                satNode.style.top = `${y}%`;
-                satNode.style.borderColor = node.color;
-                satNode.style.color = node.color;
-                
-                satNode.innerHTML = `
-                    <i class="${node.icon} node-icon"></i>
-                    <div>${node.label}</div>
-                `;
-
-                // Interacción
-                satNode.onclick = () => {
-                    // Resetear activos
-                    document.querySelectorAll('.eco-node').forEach(n => n.classList.remove('active'));
-                    satNode.classList.add('active');
-
-                    if (systemKey === 'macro') {
-                        // Navegación (Zoom In)
-                        renderSystem(node.id);
-                    } else {
-                        // Mostrar Detalle (Panel Lateral)
-                        const info = infoDB[node.infoId];
-                        if(info) showPanel(info.title, info.text, null, null, null, node.color);
-                    }
-                };
-
-                container.appendChild(line);
-                container.appendChild(satNode);
-
-                // Secuencia de Animación
-                setTimeout(() => {
-                    line.style.width = window.innerWidth < 768 ? '40%' : '35%'; // Extender línea
-                }, 200 + (index * 100));
-
-                setTimeout(() => {
-                    satNode.style.transform = "translate(-50%, -50%) scale(1)"; // Aparecer nodo
-                }, 500 + (index * 100));
+            // 1. Preparar animación de salida
+            const oldNodes = document.querySelectorAll('.eco-node, .neural-line');
+            oldNodes.forEach(el => {
+                if(fromBack) el.classList.add('zooming-in'); // Si volvemos, se encogen
+                else el.classList.add('zooming-out'); // Si avanzamos, se expanden hacia la cámara
+                el.style.opacity = '0';
             });
+
+            // 2. Esperar y renderizar nuevo nivel
+            setTimeout(() => {
+                container.innerHTML = '';
+                
+                // Actualizar Títulos
+                document.getElementById('main-title').innerText = data.title;
+                document.getElementById('sub-title').innerText = data.subtitle;
+                document.getElementById('title-bar').style.backgroundColor = data.color;
+                document.getElementById('title-bar').style.boxShadow = `0 0 15px ${data.color}`;
+
+                // NODO CENTRAL (El que acabamos de "hacer zoom")
+                const centerNode = createNode('center', {
+                    id: id, label: data.parent ? 'VOLVER' : 'ECA CENTRAL', 
+                    icon: data.icon, color: data.color
+                }, true);
+                
+                // Click en el centro -> Si tiene padre, vuelve atrás. Si es Macro, nada.
+                centerNode.onclick = () => { if(data.parent) goBack(); };
+                container.appendChild(centerNode);
+
+                // NODOS HIJOS (Ramas)
+                if (data.nodes) {
+                    const radius = window.innerWidth < 768 ? 38 : 30; // % del ancho
+                    
+                    data.nodes.forEach((node, i) => {
+                        // Calcular Posición
+                        const rad = (node.angle * Math.PI) / 180;
+                        const x = 50 + (radius * Math.cos(rad));
+                        const y = 50 + (radius * Math.sin(rad));
+
+                        // Línea
+                        const line = document.createElement('div');
+                        line.className = 'neural-line';
+                        line.style.background = `linear-gradient(90deg, transparent 0%, ${node.color || data.color} 100%)`;
+                        line.style.color = node.color || data.color;
+                        line.style.transform = `rotate(${node.angle}deg)`;
+                        container.appendChild(line);
+
+                        // Nodo
+                        let typeClass = 'node-branch'; // Defecto
+                        if (node.type === 'legal') typeClass = 'node-leaf border-dashed';
+                        else if (!node.type && id !== 'macro') typeClass = 'node-leaf';
+
+                        const childNode = document.createElement('div');
+                        childNode.className = `eco-node ${typeClass}`;
+                        childNode.style.borderColor = node.color || data.color;
+                        childNode.style.left = `${x}%`;
+                        childNode.style.top = `${y}%`;
+                        
+                        // Icono especial para legal
+                        const iconHtml = node.type === 'legal' 
+                            ? `<i class="${node.icon} text-2xl mb-1 text-yellow-400"></i>` 
+                            : `<i class="${node.icon} text-2xl mb-1" style="color:${node.color || data.color}"></i>`;
+
+                        childNode.innerHTML = `
+                            ${iconHtml}
+                            <span class="leading-none text-slate-200 px-1">${node.label}</span>
+                        `;
+
+                        // EVENTO CLICK
+                        childNode.onclick = () => {
+                            if (node.type === 'legal') {
+                                // Caso Especial: Legalidad -> Abre Panel
+                                showInfo(id + '_legal', "Marco Legal", node.color || data.color);
+                            } else if (DB[node.id]) {
+                                // Caso Normal: Navegar (Zoom In)
+                                navigateTo(node.id);
+                            } else {
+                                // Caso Hoja (Producto/Característica) -> Abre Info
+                                showInfo(node.id, node.label, node.color || data.color);
+                            }
+                        };
+
+                        container.appendChild(childNode);
+
+                        // Animación de entrada de los nuevos nodos
+                        setTimeout(() => {
+                            line.style.width = `${radius}%`;
+                            childNode.style.transform = 'translate(-50%, -50%) scale(1)';
+                        }, 100 + (i * 50));
+                    });
+                }
+                
+                // Entrada del centro
+                setTimeout(() => { centerNode.style.transform = 'translate(-50%, -50%) scale(1)'; }, 50);
+
+                // Actualizar UI Controles
+                updateNavUI(id);
+
+            }, 500);
         }
 
-        // =================================================================
-        // GESTIÓN DEL PANEL LATERAL
-        // =================================================================
-        let currentChartInstance = null;
+        function createNode(type, data, isCenter) {
+            const div = document.createElement('div');
+            div.className = `eco-node ${isCenter ? 'node-center' : 'node-branch'}`;
+            div.style.borderColor = data.color;
+            div.style.left = '50%';
+            div.style.top = '50%';
+            div.style.zIndex = isCenter ? 20 : 10;
+            
+            div.innerHTML = `
+                <i class="${data.icon} text-4xl mb-2" style="color:${data.color}"></i>
+                <span class="font-bold tracking-widest text-xs uppercase text-slate-300">${data.label}</span>
+            `;
+            return div;
+        }
 
-        function showPanel(title, desc, listItems, legalText, chartData, color) {
-            const panel = document.getElementById('info-panel');
+        function navigateTo(id) {
+            if (id === currentId) return;
+            historyStack.push(currentId);
+            currentId = id;
+            renderNode(id, false);
+        }
+
+        function goBack() {
+            if (historyStack.length === 0) return;
+            const prevId = historyStack.pop();
+            currentId = prevId;
+            renderNode(prevId, true);
+        }
+
+        function updateNavUI(id) {
+            const controls = document.getElementById('nav-controls');
+            const btnBack = document.getElementById('btn-back');
+            
+            if (id === 'macro') {
+                controls.classList.remove('visible');
+            } else {
+                controls.classList.add('visible');
+                // Cambiar el color del fondo sutilmente según la sección
+                document.getElementById('bg-neural').style.background = 
+                    `radial-gradient(circle at 50% 50%, ${hexToRgba(DB[id].color, 0.1)} 0%, #020617 100%)`;
+            }
+        }
+
+        // Helper para color de fondo
+        function hexToRgba(hex, alpha) {
+            let r = parseInt(hex.slice(1, 3), 16),
+                g = parseInt(hex.slice(3, 5), 16),
+                b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        // ==========================================
+        // PANEL DE INFORMACIÓN
+        // ==========================================
+        function showInfo(id, title, color) {
+            const panel = document.getElementById('side-panel');
             const content = document.getElementById('panel-content');
             
-            panel.classList.add('active');
-            
-            // Construir HTML del panel
-            let listHTML = '';
-            if (listItems) {
-                listHTML = `<ul class="space-y-2 mb-6 text-sm text-gray-600">
-                    ${listItems.map(item => `<li class="flex items-start"><span class="mr-2" style="color:${color}">➤</span>${item}</li>`).join('')}
-                </ul>`;
+            // Buscar texto o usar default
+            const info = TEXTS[id] || { 
+                title: title, 
+                text: "Información detallada en proceso de estructuración según plan maestro MGA.",
+                tag: "INFO" 
+            };
+
+            // Determinar TAG si no existe
+            let tag = info.tag;
+            if(!tag) {
+                if(id.includes('_legal')) tag = "LEGAL";
+                else if(id.startsWith('p_')) tag = "PRODUCTO";
+                else if(id.startsWith('c_')) tag = "PROCESO";
+                else tag = "GENERAL";
             }
 
-            let legalHTML = '';
-            if (legalText) {
-                legalHTML = `
-                    <div class="bg-gray-50 border-l-4 p-4 rounded mb-6" style="border-color:${color}">
-                        <h4 class="text-xs font-bold uppercase tracking-wider mb-1" style="color:${color}">Marco Legal</h4>
-                        <p class="text-xs text-gray-500 italic">${legalText}</p>
-                    </div>
-                `;
-            }
-
-            let chartHTML = '';
-            if (chartData) {
-                chartHTML = `
-                    <div class="mt-6">
-                        <h4 class="text-xs font-bold uppercase text-gray-400 mb-2 text-center">Impacto Estimado</h4>
-                        <div class="relative h-48 w-full">
-                            <canvas id="side-chart"></canvas>
-                        </div>
-                    </div>
-                `;
-            }
+            panel.classList.add('open');
 
             content.innerHTML = `
-                <button onclick="document.getElementById('info-panel').classList.remove('active')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 md:hidden">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-                <h2 class="text-2xl font-bold mb-2" style="color:${color}">${title}</h2>
-                <p class="text-gray-600 mb-6 leading-relaxed text-sm">${desc}</p>
-                ${listHTML}
-                ${legalHTML}
-                ${chartHTML}
-            `;
+                <div class="mb-6 border-l-4 pl-4" style="border-color:${color}">
+                    <span class="text-xs font-bold uppercase tracking-widest px-2 py-1 rounded bg-slate-800 border border-slate-700" style="color:${color}; border-color:${color}">
+                        ${tag}
+                    </span>
+                    <h2 class="text-3xl font-rajdhani font-bold text-white mt-3 leading-tight">
+                        ${info.title}
+                    </h2>
+                </div>
+                
+                <div class="text-slate-300 font-light text-lg leading-relaxed space-y-4">
+                    <p>${info.text}</p>
+                </div>
 
-            // Renderizar Gráfico si existe
-            if (chartData) {
-                setTimeout(() => {
-                    const ctx = document.getElementById('side-chart');
-                    if(ctx) {
-                        if (currentChartInstance) currentChartInstance.destroy();
-                        currentChartInstance = new Chart(ctx, {
-                            type: 'doughnut',
-                            data: {
-                                labels: chartData.labels,
-                                datasets: [{
-                                    data: chartData.data,
-                                    backgroundColor: [color, color+'80', color+'40'],
-                                    borderWidth: 0
-                                }]
-                            },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
-                        });
-                    }
-                }, 100);
-            }
+                ${id.includes('_legal') ? `
+                <div class="mt-8 p-4 bg-green-900/20 rounded-lg border border-green-700/50 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center bg-green-800">
+                        <i class="fa-solid fa-check text-white"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-green-400 uppercase font-bold">Cumplimiento</div>
+                        <div class="text-sm text-white font-bold">Normativa Verificada</div>
+                    </div>
+                </div>` : ''}
+            `;
         }
 
-        // Inicialización
+        function closePanel() {
+            document.getElementById('side-panel').classList.remove('open');
+        }
+
+        // Iniciar
         document.addEventListener('DOMContentLoaded', () => {
-            renderSystem('macro');
+            renderNode('macro');
         });
 
     </script>
