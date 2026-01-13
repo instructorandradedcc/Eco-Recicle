@@ -364,7 +364,7 @@
                 color: "#6366f1", icon: "fa-solid fa-wheat-awn",
                 nodes: [
                      { id: 'cia_car', label: 'Logística', icon: '🚚', type: 'branch', angle: 0 },
-                     { id: 'cia_leg', label: 'Legalidad', icon: '⚖️', type: 'legal', angle: 180 }
+                     { id: 'cia_legal', label: 'Legalidad', icon: '⚖️', type: 'legal', angle: 180 }
                 ]
             },
             'lodos': {
@@ -372,7 +372,7 @@
                 color: "#94a3b8", icon: "fa-solid fa-droplet",
                 nodes: [
                      { id: 'lod_car', label: 'Proceso', icon: '⚙️', type: 'branch', angle: 0 },
-                     { id: 'lod_leg', label: 'Legalidad', icon: '⚖️', type: 'legal', angle: 180 }
+                     { id: 'lod_legal', label: 'Legalidad', icon: '⚖️', type: 'legal', angle: 180 }
                 ]
             }
         };
@@ -427,12 +427,21 @@
                 title: "Marco Legal Orgánicos", 
                 text: `
                 <div class="space-y-4">
-                    <p>Producción de bio-insumos y seguridad alimentaria.</p>
+                    <p>Normativa para la producción segura de bio-insumos y seguridad alimentaria.</p>
                     <div class="bg-slate-800 p-3 rounded border-l-4 border-yellow-500">
-                        <strong>Bio-Insumos:</strong> Res. ICA 0684 de 2011 (Registro Productor) y NTC 5167 (Calidad).
+                        <strong>Bio-Insumos (Abonos):</strong>
+                        <ul class="list-disc pl-4 mt-1 text-sm">
+                            <li><strong>Res. ICA 0684 de 2011:</strong> ECORECYCLE se registra como Productor de Abonos Orgánicos ante el ICA.</li>
+                            <li><strong>NTC 5167:</strong> Garantiza calidad sanitaria (sin Salmonella/E. coli) y físico-química (metales pesados). Vital para la comercialización segura.</li>
+                        </ul>
                     </div>
                     <div class="bg-slate-800 p-3 rounded border-l-4 border-green-500 mt-2">
-                        <strong>Bioseguridad Animal:</strong> Res. ICA 3651 (Avícola), Res. 2640 (Porcícola - Prohibición lavazas), Res. AUNAP 2287 (Piscícola).
+                        <strong>Bioseguridad Animal:</strong>
+                        <ul class="list-disc pl-4 mt-1 text-sm">
+                            <li><strong>Res. ICA 3651 (Avícola):</strong> Certificación de granjas bioseguras para gallinas.</li>
+                            <li><strong>Res. 2640 (Porcícola):</strong> Cumplimiento estricto de la prohibición de uso de lavazas crudas; solo alimento procesado.</li>
+                            <li><strong>Res. AUNAP 2287:</strong> Registro de predios piscícolas.</li>
+                        </ul>
                     </div>
                 </div>
                 `
@@ -461,11 +470,19 @@
                 title: "Marco Legal Reciclaje", 
                 text: `
                 <div class="space-y-4">
-                    <p>Operador del Servicio Público de Aseo (Componente Aprovechamiento).</p>
+                    <p>ECORECYCLE opera bajo el régimen de Servicios Públicos Domiciliarios de Aseo.</p>
                     <div class="bg-slate-800 p-3 rounded border-l-4 border-teal-500">
-                        <strong>Normativa:</strong> Decreto 596 de 2016 (Tarifa y SUI) y Res. 1407 de 2018 (REP Envases).
+                        <strong>ECA y Tarifas:</strong> Decreto 596 de 2016.
+                        <br>Permite la formalización de recicladores, la operación de la Estación de Clasificación y Aprovechamiento (ECA) y el cobro de la tarifa de aprovechamiento vía SUI.
                     </div>
-                    <div class="text-sm mt-2"><strong>Especiales:</strong> Licencia Ambiental (Dec. 1076) para Pirólisis y Res. 0316 para Aceites (ACU).</div>
+                    <div class="mt-2 bg-slate-800 p-3 rounded border-l-4 border-blue-400">
+                        <strong>Responsabilidad Extendida (REP):</strong> Resolución 1407 de 2018.
+                        <br>Faculta la emisión de 'Certificados de Transformación' para empresas productoras de envases que deben cumplir metas anuales.
+                    </div>
+                    <ul class="list-disc pl-4 mt-2 text-sm">
+                        <li><strong>Pirólisis:</strong> Requiere Licencia Ambiental (Dec. 1076) y cumplimiento de emisiones (Res. 909).</li>
+                        <li><strong>Aceites (ACU):</strong> Res. 0316 de 2018 para gestores de aceite de cocina usado.</li>
+                    </ul>
                 </div>
                 `
             },
@@ -493,13 +510,15 @@
                 title: "Marco Legal Tecnología", 
                 text: `
                 <div class="space-y-4">
-                    <p>Innovación biomédica y digital.</p>
+                    <p>Cumplimiento normativo para dispositivos médicos, aeronáutica y manejo de datos.</p>
                     <div class="bg-slate-800 p-3 rounded border-l-4 border-purple-500">
-                        <strong>Prótesis:</strong> Decreto 4725 de 2005 (Dispositivos médicos sobre medida). Certificación de Capacidad Técnica.
+                        <strong>Prótesis Biónicas:</strong> Decreto 4725 de 2005.
+                        <br>Se fabrican bajo la modalidad de "Dispositivos médicos sobre medida". Requiere Certificación de Capacidad de Producción y un Director Técnico responsable. No requiere registro sanitario masivo.
                     </div>
                     <ul class="list-disc pl-4 mt-2 text-sm">
-                        <li><strong>Datos:</strong> Ley 1581 (Habeas Data) para bases de datos de recicladores.</li>
-                        <li><strong>Drones:</strong> RAC 100 (Aerocivil) para operaciones agrícolas.</li>
+                        <li><strong>Protección de Datos:</strong> Ley 1581 de 2012 (Habeas Data). Obligatoria para gestionar la base de datos de recicladores y beneficiarios de prótesis.</li>
+                        <li><strong>Drones Agrícolas:</strong> RAC 100 (Aerocivil). Exige registro de equipo, piloto certificado y permisos para operaciones clase B (fumigación/monitoreo).</li>
+                        <li><strong>IA Ética:</strong> Adhesión al Marco Ético de IA en Colombia (2021) para transparencia algorítmica.</li>
                     </ul>
                 </div>
                 `
@@ -523,9 +542,22 @@
             'c_vis': { title: "Visión Artificial", text: "Cámaras hiperespectrales entrenadas para identificar tipos de plástico (PET, HDPE, PP) a alta velocidad, automatizando la separación." },
 
             // --- LÍNEA 5: ECO-CIA (LOGÍSTICA) ---
-            'cia_leg': { 
-                title: "Marco Legal Rural", 
-                text: "Cumplimiento de Ley 1990 (Pérdida de Alimentos) y normativas de saneamiento básico para centros de acopio. Registro ICA para movilización de productos." 
+            'cia_legal': { 
+                title: "Marco Legal Eco-CIA & Rural", 
+                text: `
+                <div class="space-y-4">
+                    <p>Centros de Inteligencia Agroecológica y Logística Rural.</p>
+                    <div class="bg-slate-800 p-3 rounded border-l-4 border-indigo-500">
+                         <strong>Política Alimentaria:</strong> Ley 1990 de 2019.
+                         <br>Facilita la recuperación de alimentos aptos para consumo humano (Bancos de Alimentos/Eco-Tiendas) con beneficios tributarios para donantes.
+                    </div>
+                    <ul class="list-disc pl-4 mt-2 text-sm">
+                        <li><strong>Saneamiento:</strong> Cumplimiento de normas sanitarias para bodegas de almacenamiento de alimentos (Res. 2674 de 2013).</li>
+                        <li><strong>Transporte:</strong> Normativa de movilización de productos agrícolas (Guías ICA).</li>
+                        <li><strong>Comercialización:</strong> Res. ICA 0684 para la venta de bio-insumos producidos en el nodo.</li>
+                    </ul>
+                </div>
+                `
             },
             'cia_car': { 
                 title: "Logística Rural Integral", 
@@ -533,9 +565,22 @@
             },
 
             // --- LÍNEA 6: LODOS (SANEAMIENTO) ---
-            'lod_leg': { 
+            'lod_legal': { 
                 title: "Marco Legal Biosólidos", 
-                text: "<strong>Decreto 1287 de 2014:</strong> Establece criterios para el uso de biosólidos generados en plantas de tratamiento de aguas residuales (PTAR)." 
+                text: `
+                <div class="space-y-4">
+                    <p>Gestión ambiental segura de subproductos de saneamiento básico.</p>
+                    <div class="bg-slate-800 p-3 rounded border-l-4 border-gray-500">
+                        <strong>Decreto 1287 de 2014:</strong>
+                        <br>Establece los criterios técnicos para el uso de biosólidos generados en plantas de tratamiento de aguas residuales (PTAR) con fines agrícolas o de restauración.
+                    </div>
+                    <ul class="list-disc pl-4 mt-2 text-sm">
+                        <li><strong>RAS 2017:</strong> Reglamento Técnico del Sector de Agua Potable y Saneamiento Básico (Título G).</li>
+                        <li><strong>Resolución 0631 de 2015:</strong> Parámetros de vertimientos a cuerpos de agua y alcantarillado.</li>
+                        <li><strong>Licenciamiento:</strong> Plan de Manejo Ambiental para la planta de tratamiento de lodos.</li>
+                    </ul>
+                </div>
+                `
             },
             'lod_car': { 
                 title: "Gestión de Lodos", 
@@ -633,7 +678,7 @@
                         childNode.onclick = () => {
                             if (node.type === 'legal') {
                                 // Caso Especial: Legalidad -> Abre Panel
-                                showInfo(id + '_legal', "Marco Legal", node.color || data.color);
+                                showInfo(node.id, "Marco Legal", node.color || data.color);
                             } else if (DB[node.id]) {
                                 // Caso Normal: Navegar (Zoom In)
                                 navigateTo(node.id);
@@ -730,7 +775,7 @@
             // Determinar TAG si no existe
             let tag = info.tag;
             if(!tag) {
-                if(id.includes('_legal')) tag = "LEGAL";
+                if(id.includes('_legal') || id.includes('legal')) tag = "LEGAL";
                 else if(id.startsWith('p_')) tag = "PRODUCTO";
                 else if(id.startsWith('c_')) tag = "PROCESO";
                 else tag = "GENERAL";
@@ -752,7 +797,7 @@
                     ${info.text}
                 </div>
 
-                ${id.includes('_legal') ? `
+                ${(id.includes('_legal') || id.includes('legal')) ? `
                 <div class="mt-8 p-4 bg-green-900/20 rounded-lg border border-green-700/50 flex items-center gap-4">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center bg-green-800">
                         <i class="fa-solid fa-check text-white"></i>
@@ -777,4 +822,3 @@
     </script>
 </body>
 </html>
-
